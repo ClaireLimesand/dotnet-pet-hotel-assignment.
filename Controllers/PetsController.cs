@@ -33,6 +33,19 @@ namespace pet_hotel.Controllers
                 .Include(pet => pet.petOwner);
         }
 
+        [HttpGet("{id}")]
+        public ActionResult<Pet> GetById(int id)
+        {
+        Pet pet = _context.Pets
+            .SingleOrDefault(pet => pet.id == id);
+        // Return a `404 Not Found` if the pet doesn't exist
+        if (pet is null)
+        {
+            return NotFound();
+        }
+        return pet;
+        }
+
         [HttpPost]
         public Pet Post(Pet pet)
         {
@@ -43,19 +56,35 @@ namespace pet_hotel.Controllers
             return pet;
         }
 
-        [HttpPut("{id}")]
-        public Pet Put(int id, Pet pet) 
+        [HttpPut("{id}/checkin")]
+        public Pet CheckinPut(int id)
         {
-        // Our DB context needs to know the id of the bread to update
-        pet.id = id;
-
-        // Tell the DB context about our updated bread object
+            //Fetch Object data by id
+        Pet pet = _context.Pets
+        .SingleOrDefault(pet => pet.id == id);
+        //Generate timestamp
+        DateTime date = DateTime.Now;
+        //update Object w/ timestamp
+        pet.checkedInAt = date;
+        //Update all that
         _context.Update(pet);
-
-        // ...and save the bread object to the database
         _context.SaveChanges();
 
-        // Respond back with the created bread object
+        return pet;
+        }
+
+        [HttpPut("{id}/checkout")]
+        public Pet CheckoutPut(int id)
+        {
+            //Fetch Object data by id
+        Pet pet = _context.Pets
+            .SingleOrDefault(pet => pet.id == id);
+        //update Object w/ timestamp
+        pet.checkedInAt = null;
+        //Update all that
+        _context.Update(pet);
+        _context.SaveChanges();
+
         return pet;
         }
 
